@@ -41,6 +41,7 @@
                 if (args.HasResult && args.Result == "yes")
                 {
                     args.Parameters.Add("delegatedArea", "true");
+                    args.IsPostBack = false;
                 }
             }
             else
