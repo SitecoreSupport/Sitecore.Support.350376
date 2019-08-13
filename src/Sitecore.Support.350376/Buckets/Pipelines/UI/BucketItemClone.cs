@@ -25,7 +25,7 @@
                 if (item != null && (IsBucket(item) || ShouldBeHandledWithinItemBuckets(ExtractItems(args))))
                 {
                     ExecuteSync("Cloning Items", "-/icon/Core3/32x32/copy_to_folder.png", StartCloning, EndCloning);
-                    args.AbortPipeline();
+                    args.Parameters["AbortPipeline"] = "true";
                 }
             }
         }

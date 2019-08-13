@@ -26,21 +26,24 @@
         public override void Execute(CopyItemsArgs args)
         {
             Assert.ArgumentNotNull(args, "args");
-            Database database = CopyItems.GetDatabase(args);
-            Item item = database.GetItem(args.Parameters["destination"]);
-            Assert.IsNotNull(item, args.Parameters["destination"]);
-            string value = args.Parameters["deep"];
-            if (!bool.TryParse(value, out bool result))
+            if (args.Parameters["AbortPipeline"] != "true")
             {
-                result = true;
+                Database database = CopyItems.GetDatabase(args);
+                Item item = database.GetItem(args.Parameters["destination"]);
+                Assert.IsNotNull(item, args.Parameters["destination"]);
+                string value = args.Parameters["deep"];
+                if (!bool.TryParse(value, out bool result))
+                {
+                    result = true;
+                }
+                ArrayList arrayList = new ArrayList();
+                if (Settings.ItemCloning.Enabled)
+                {
+                    List<Item> items = CopyItems.GetItems(args);
+                    DoCloneItems(item, items, arrayList, result);
+                }
+                args.Copies = (arrayList.ToArray(typeof(Item)) as Item[]);
             }
-            ArrayList arrayList = new ArrayList();
-            if (Settings.ItemCloning.Enabled)
-            {
-                List<Item> items = CopyItems.GetItems(args);
-                DoCloneItems(item, items, arrayList, result);
-            }
-            args.Copies = (arrayList.ToArray(typeof(Item)) as Item[]);
         }
 
         /// <summary>
@@ -50,30 +53,33 @@
         public new void RelinkClonedSubtree(CopyItemsArgs args)
         {
             Assert.ArgumentNotNull(args, "args");
-            NameValueCollection parameters = args.Parameters;
-            Assert.IsNotNull(parameters, "parameters");
-            if (!Settings.RelinkClonedSubtree)
+            if (args.Parameters["AbortPipeline"] != "true")
             {
-                return;
-            }
-            Item[] copies = args.Copies;
-            Assert.IsNotNull(copies, "copies");
-            Item[] array = copies;
-            foreach (Item item in array)
-            {
-                if (item.SourceUri != null)
+                NameValueCollection parameters = args.Parameters;
+                Assert.IsNotNull(parameters, "parameters");
+                if (!Settings.RelinkClonedSubtree)
                 {
-                    Item item2 = Database.GetItem(item.SourceUri);
-                    if (item2 != null)
+                    return;
+                }
+                Item[] copies = args.Copies;
+                Assert.IsNotNull(copies, "copies");
+                Item[] array = copies;
+                foreach (Item item in array)
+                {
+                    if (item.SourceUri != null)
                     {
-                        ReplaceItemReferencesArgs args2 = new ReplaceItemReferencesArgs
+                        Item item2 = Database.GetItem(item.SourceUri);
+                        if (item2 != null)
                         {
-                            SourceItem = item2,
-                            CopyItem = item,
-                            Deep = true,
-                            Async = false
-                        };
-                        CorePipeline.Run("replaceItemReferences", args2);
+                            ReplaceItemReferencesArgs args2 = new ReplaceItemReferencesArgs
+                            {
+                                SourceItem = item2,
+                                CopyItem = item,
+                                Deep = true,
+                                Async = false
+                            };
+                            CorePipeline.Run("replaceItemReferences", args2);
+                        }
                     }
                 }
             }
