@@ -77,6 +77,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Shell\Framework\Pipelines\CloneItems.cs" />
     <Compile Include="XA\Foundation\Multisite\Pipelines\UiCloneItems\ConfirmDelegatedArea.cs" />
+    <Compile Include="XA\Foundation\Multisite\Pipelines\UiCloneItems\PopulateDelegatedArea.cs" />
+    <Compile Include="XA\Foundation\Multisite\Pipelines\UiCloneItems\ProtectClone.cs" />
+    <Compile Include="XA\Foundation\Multisite\Pipelines\UiCloneItems\ReplaceLinks.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Config\Include\zzz\Sitecore.Support.350376.config" />
